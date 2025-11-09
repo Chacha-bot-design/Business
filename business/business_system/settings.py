@@ -6,13 +6,21 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-your-secret-key-here-change-in-production'
+SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-your-secret-key-here-change-in-production')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get('DEBUG', 'False') == 'True'  # ← FIXED: Single DEBUG definition
 
 # Allow all hosts for development
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = [
+    'localhost',
+    '127.0.0.1',
+    '0.0.0.0',
+    '.onrender.com',
+    'business-system.onrender.com',
+    'frecha-iotech.onrender.com',
+    'business-front.onrender.com',
+]
 
 # Application definition
 INSTALLED_APPS = [
@@ -30,6 +38,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',  # This must be at the top
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # ← ADDED: Critical for static files
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -40,7 +49,6 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'business_system.urls'
 
-# FIX: Add the TEMPLATES configuration
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -69,14 +77,14 @@ if DATABASE_URL:
             ssl_require=True
         )
     }
-# Security settings for production
-DEBUG = os.environ.get('DEBUG', 'False') == 'True'
-
-if not DEBUG:
-    SECURE_SSL_REDIRECT = True
-    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-    SESSION_COOKIE_SECURE = True
-    CSRF_COOKIE_SECURE = True
+else:
+    # Fallback database for local development
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
@@ -100,7 +108,7 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_TZ = True
 
-# Static files
+# Static files (CRITICAL FIXES)
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
@@ -108,20 +116,21 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# ========== CORS SETTINGS - COMPLETE FIX ==========
-CORS_ALLOWED_ORIGINS = [
-    "https://business-front.onrender.com",
-]
-CORS_ALLOW_CREDENTIALS = True
-
-# Specific allowed origins (include port 3001)
+# ========== CORS SETTINGS - FIXED ==========
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
-    "https://business-front.onrender.com",  # Add this for your React app
+    "http://localhost:3001",
+    "http://127.0.0.1:3001",
+    "https://business-front.onrender.com",
     "https://business-system.onrender.com",
-    "http://127.0.0.1:3001",  # Add this for your React app
+    "https://frecha-iotech.onrender.com",
 ]
+
+# REMOVED: Duplicate CORS_ALLOWED_ORIGINS definition
+
+CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_ALL_ORIGINS = True  # ← ADDED: For development
 
 # Allow all methods
 CORS_ALLOW_METHODS = [
@@ -153,10 +162,25 @@ REST_FRAMEWORK = {
     ]
 }
 
-# CSRF settings for development
+# CSRF settings
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
     "http://localhost:3001",
     "http://127.0.0.1:3001",
+    "https://business-front.onrender.com",
+    "https://business-system.onrender.com",
+    "https://frecha-iotech.onrender.com",
 ]
+
+# Security settings for production - MOVED AFTER DEBUG DEFINITION
+if not DEBUG:
+    SECURE_SSL_REDIRECT = True
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+
+# Debug information
+print(f"🚀 Django settings loaded: DEBUG={DEBUG}")
+print(f"📦 Database: {DATABASES['default']['ENGINE']}")
+print(f"🌐 Allowed Hosts: {ALLOWED_HOSTS}")
