@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 // API base URL - make sure this matches your backend
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://business-front.onrender.com/api';
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://frecha-iotech.onrender.com/api';
 
 console.log('🔧 Using API Base URL:', API_BASE_URL);
 
@@ -121,6 +121,59 @@ export const productAPI = {
       return response;
     } catch (error) {
       console.error('Error in productAPI.delete:', error);
+      throw error;
+    }
+  }
+};
+
+// Transactions API - ADD THIS SECTION
+export const transactionAPI = {
+  getAll: async () => {
+    try {
+      const response = await api.get('/transactions/');
+      return response;
+    } catch (error) {
+      console.error('Error in transactionAPI.getAll:', error);
+      throw error;
+    }
+  },
+  
+  getById: async (id) => {
+    try {
+      const response = await api.get(`/transactions/${id}/`);
+      return response;
+    } catch (error) {
+      console.error('Error in transactionAPI.getById:', error);
+      throw error;
+    }
+  },
+  
+  create: async (transactionData) => {
+    try {
+      const response = await api.post('/transactions/', transactionData);
+      return response;
+    } catch (error) {
+      console.error('Error in transactionAPI.create:', error);
+      throw error;
+    }
+  },
+  
+  update: async (id, transactionData) => {
+    try {
+      const response = await api.put(`/transactions/${id}/`, transactionData);
+      return response;
+    } catch (error) {
+      console.error('Error in transactionAPI.update:', error);
+      throw error;
+    }
+  },
+  
+  delete: async (id) => {
+    try {
+      const response = await api.delete(`/transactions/${id}/`);
+      return response;
+    } catch (error) {
+      console.error('Error in transactionAPI.delete:', error);
       throw error;
     }
   }
