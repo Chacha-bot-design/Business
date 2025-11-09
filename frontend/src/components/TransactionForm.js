@@ -51,7 +51,7 @@ const TransactionForm = () => {
 
     // Auto-fill unit price when product is selected
     if (e.target.name === 'product') {
-      const selectedProduct = products.find(p => p.id === value);
+      const selectedProduct = products.find(p => p.id == value);
       if (selectedProduct) {
         setFormData(prev => ({
           ...prev,

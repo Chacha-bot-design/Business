@@ -1,17 +1,16 @@
-from django.urls import path
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
 from . import views
 
+router = DefaultRouter()
+router.register(r'products', views.ProductViewSet)
+router.register(r'transactions', views.TransactionViewSet)
+router.register(r'daily-summaries', views.DailySummaryViewSet)
+router.register(r'weekly-summaries', views.WeeklySummaryViewSet)
+router.register(r'monthly-summaries', views.MonthlySummaryViewSet)
+router.register(r'yearly-summaries', views.YearlySummaryViewSet)
+router.register(r'reports', views.ReportViewSet, basename='reports')
+
 urlpatterns = [
-    # Health check
-    path('health/', views.health_check, name='health_check'),
-    
-    # Products - READ ONLY
-    path('products/', views.get_products, name='get_products'),
-    
-    # Transactions - READ ONLY
-    path('transactions/', views.get_transactions, name='get_transactions'),
-    
-    # Reports
-    path('reports/generate_all_summaries/', views.generate_all_summaries, name='generate_all_summaries'),
-    path('reports/generate/', views.generate_reports, name='generate_reports'),
+    path('', include(router.urls)),
 ]
