@@ -5,6 +5,7 @@ import TransactionForm from './components/TransactionForm';
 import Reports from './components/Reports';
 import StockAlert from './components/StockAlert';
 import './App.css';
+import DebugInfo from './components/DebugInfo';
 
 function App() {
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -28,6 +29,9 @@ function App() {
 
   return (
     <div className="App">
+      {/* Debug Info at the top */}
+      <DebugInfo />
+      
       <header className="app-header">
         <h1>Business Record Management System</h1>
         <nav className="nav-tabs">
