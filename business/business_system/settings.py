@@ -119,6 +119,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
     "https://business-front.onrender.com",  # Add this for your React app
+    "https://business-system.onrender.com",
     "http://127.0.0.1:3001",  # Add this for your React app
 ]
 
