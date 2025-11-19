@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 // API base URL - make sure this matches your backend
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://frecha-iotech.onrender.com/api';
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://business-system.onrender.com/api';
 
 console.log('🔧 Using API Base URL:', API_BASE_URL);
 
