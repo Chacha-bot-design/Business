@@ -1,0 +1,53 @@
+/* Data Source Info */
+.data-source-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+
+.data-source {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.data-source.live {
+  background: var(--success);
+  color: white;
+}
+
+.data-source.mock {
+  background: var(--warning);
+  color: var(--gray-800);
+}
+
+/* System Status */
+.system-status {
+  margin-top: var(--space-6);
+  text-align: center;
+}
+
+.status-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-6);
+  border-radius: var(--radius-lg);
+  font-weight: 500;
+}
+
+.status-indicator.success {
+  background: var(--success);
+  color: white;
+}
+
+.status-indicator.warning {
+  background: #fef3c7;
+  color: #92400e;
+  border: 1px solid #f59e0b;
+}
