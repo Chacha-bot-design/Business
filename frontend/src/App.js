@@ -1,56 +1,32 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { AuthProvider, useAuth } from './context/AuthContext';
+import Login from './components/Login';
 import Dashboard from './components/Dashboard';
-import ProductManagement from './components/ProductManagement';
-import TransactionForm from './components/TransactionForm';
-import Reports from './components/Reports';
-import StockAlert from './components/StockAlert';
 import './App.css';
-import DebugInfo from './components/DebugInfo';
 
-function App() {
-  const [activeTab, setActiveTab] = useState('dashboard');
+function AppContent() {
+  const { user, loading } = useAuth();
 
-  const renderContent = () => {
-    switch (activeTab) {
-      case 'dashboard':
-        return <Dashboard />;
-      case 'products':
-        return <ProductManagement />;
-      case 'transactions':
-        return <TransactionForm />;
-      case 'reports':
-        return <Reports />;
-      case 'alerts':
-        return <StockAlert />;
-      default:
-        return <Dashboard />;
-    }
-  };
+  if (loading) {
+    return (
+      <div className="loading-spinner">
+        <div className="spinner"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="App">
-      {/* Debug Info at the top */}
-      <DebugInfo />
-      
-      <header className="app-header">
-        <h1>Business Record Management System</h1>
-        <nav className="nav-tabs">
-          {['dashboard', 'products', 'transactions', 'reports', 'alerts'].map(tab => (
-            <button
-              key={tab}
-              className={`tab-button ${activeTab === tab ? 'active' : ''}`}
-              onClick={() => setActiveTab(tab)}
-            >
-              {tab.charAt(0).toUpperCase() + tab.slice(1)}
-            </button>
-          ))}
-        </nav>
-      </header>
-      
-      <main className="app-main">
-        {renderContent()}
-      </main>
+      {user ? <Dashboard /> : <Login />}
     </div>
+  );
+}
+
+function App() {
+  return (
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
   );
 }
 

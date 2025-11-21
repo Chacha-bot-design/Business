@@ -1,0 +1,385 @@
+.reports-dashboard {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.reports-header {
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+.reports-header h3 {
+  color: #333;
+  margin: 0 0 10px 0;
+  font-size: 28px;
+}
+
+.reports-header p {
+  color: #666;
+  margin: 0;
+  font-size: 16px;
+}
+
+.reports-navigation {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 30px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.report-tab {
+  padding: 12px 24px;
+  background: white;
+  border: 2px solid #e1e5e9;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  color: #666;
+  transition: all 0.3s ease;
+}
+
+.report-tab:hover {
+  border-color: #667eea;
+  color: #333;
+}
+
+.report-tab.active {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  border-color: #667eea;
+  color: white;
+}
+
+.reports-content {
+  background: white;
+  border: 2px solid #e1e5e9;
+  border-radius: 8px;
+  padding: 25px;
+  min-height: 400px;
+}
+
+.report-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+  padding-bottom: 15px;
+  border-bottom: 2px solid #e1e5e9;
+}
+
+.report-header h3 {
+  color: #333;
+  margin: 0;
+  font-size: 22px;
+}
+
+.refresh-button {
+  padding: 8px 16px;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: opacity 0.3s ease;
+}
+
+.refresh-button:hover {
+  opacity: 0.9;
+}
+
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.metric-card {
+  background: #f8f9fa;
+  border: 1px solid #e1e5e9;
+  border-radius: 8px;
+  padding: 20px;
+  text-align: center;
+  transition: transform 0.2s ease;
+}
+
+.metric-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.metric-card h4 {
+  color: #666;
+  margin: 0 0 10px 0;
+  font-size: 14px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.metric-value {
+  font-size: 24px;
+  font-weight: 700;
+  margin: 0 0 5px 0;
+  color: #333;
+}
+
+.metric-value.profit {
+  color: #28a745;
+}
+
+.metric-value.positive {
+  color: #28a745;
+}
+
+.metric-value.negative {
+  color: #dc3545;
+}
+
+.metric-label {
+  color: #666;
+  margin: 0;
+  font-size: 12px;
+}
+
+.report-section {
+  margin-bottom: 25px;
+}
+
+.report-section h4 {
+  color: #333;
+  margin: 0 0 15px 0;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #e1e5e9;
+  font-size: 18px;
+}
+
+.products-list,
+.sellers-list,
+.breakdown-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.product-item,
+.seller-item,
+.breakdown-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  background: #f8f9fa;
+  border-radius: 6px;
+  border: 1px solid #e1e5e9;
+  transition: background-color 0.2s ease;
+}
+
+.product-item:hover,
+.seller-item:hover,
+.breakdown-item:hover {
+  background: #e9ecef;
+}
+
+.product-name,
+.seller-name,
+.breakdown-date {
+  font-weight: 600;
+  color: #333;
+}
+
+.product-stats,
+.seller-stats,
+.breakdown-stats {
+  color: #666;
+  font-size: 14px;
+}
+
+.time-periods-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.period-card {
+  background: white;
+  border: 2px solid #e1e5e9;
+  border-radius: 8px;
+  padding: 25px;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.period-card:hover {
+  border-color: #667eea;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.period-card h4 {
+  color: #333;
+  margin: 0 0 15px 0;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.period-value {
+  font-size: 28px;
+  font-weight: 700;
+  margin: 0 0 10px 0;
+  color: #333;
+}
+
+.period-growth {
+  color: #666;
+  margin: 0;
+  font-size: 14px;
+}
+
+.period-growth .positive {
+  color: #28a745;
+  font-weight: 600;
+}
+
+.period-growth .negative {
+  color: #dc3545;
+  font-weight: 600;
+}
+
+.loading {
+  text-align: center;
+  padding: 60px 20px;
+  color: #666;
+  font-size: 18px;
+}
+
+.loading:before {
+  content: "⏳";
+  display: block;
+  font-size: 32px;
+  margin-bottom: 15px;
+}
+
+.no-data {
+  text-align: center;
+  padding: 60px 20px;
+  color: #666;
+  font-style: italic;
+  font-size: 16px;
+}
+
+.no-data:before {
+  content: "📊";
+  display: block;
+  font-size: 32px;
+  margin-bottom: 15px;
+}
+
+/* Summary stats styling */
+.summary-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.summary-stat {
+  background: #f8f9fa;
+  padding: 15px;
+  border-radius: 6px;
+  text-align: center;
+}
+
+.summary-stat .value {
+  font-size: 20px;
+  font-weight: 700;
+  color: #333;
+  display: block;
+}
+
+.summary-stat .label {
+  font-size: 12px;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+@media (max-width: 768px) {
+  .reports-dashboard {
+    padding: 15px;
+  }
+  
+  .reports-navigation {
+    flex-direction: column;
+  }
+  
+  .report-tab {
+    text-align: center;
+  }
+  
+  .metrics-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .time-periods-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .product-item,
+  .seller-item,
+  .breakdown-item {
+    flex-direction: column;
+    gap: 8px;
+    text-align: center;
+  }
+  
+  .report-header {
+    flex-direction: column;
+    gap: 15px;
+    text-align: center;
+  }
+  
+  .summary-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .summary-stats {
+    grid-template-columns: 1fr;
+  }
+  
+  .reports-header h3 {
+    font-size: 24px;
+  }
+  
+  .metric-value {
+    font-size: 20px;
+  }
+  
+  .period-value {
+    font-size: 24px;
+  }
+}
+
+.error-message {
+  text-align: center;
+  padding: 40px 20px;
+  background: #f8d7da;
+  border: 1px solid #f5c6cb;
+  border-radius: 6px;
+  color: #721c24;
+}
+
+.error-message h4 {
+  margin: 0 0 15px 0;
+  color: #721c24;
+}
+
+.error-message p {
+  margin: 0 0 20px 0;
+}

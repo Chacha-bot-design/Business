@@ -1,123 +1,142 @@
 from django.db import models
-from django.utils import timezone
+from django.contrib.auth.models import AbstractUser
+from django.conf import settings
+import uuid
 
-class Product(models.Model):
-    name = models.CharField(max_length=200)
-    description = models.TextField(blank=True)
-    current_stock = models.IntegerField(default=0)
-    price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Selling Price")
-    cost_price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Buying Price")
-    created_at = models.DateTimeField(auto_now_add=True)
+class User(AbstractUser):
+    # Custom related_name to avoid clashes with built-in User model
+    groups = models.ManyToManyField(
+        'auth.Group',
+        verbose_name='groups',
+        blank=True,
+        help_text='The groups this user belongs to. A user will get all permissions granted to each of their groups.',
+        related_name='custom_user_set',
+        related_query_name='user',
+    )
+    user_permissions = models.ManyToManyField(
+        'auth.Permission',
+        verbose_name='user permissions',
+        blank=True,
+        help_text='Specific permissions for this user.',
+        related_name='custom_user_set',
+        related_query_name='user',
+    )
     
-    def profit_per_unit(self):
-        """Calculate profit per unit - handle None values"""
-        if self.price is None or self.cost_price is None:
-            return 0
-        return self.price - self.cost_price
+    ROLE_CHOICES = (
+        ('BOSS', 'Boss'),
+        ('MANAGER', 'Manager'),
+        ('SELLER', 'Seller'),
+    )
+    role = models.CharField(max_length=10, choices=ROLE_CHOICES, default='SELLER')
+    phone = models.CharField(max_length=15, blank=True)
+    address = models.TextField(blank=True)
+    employee_id = models.CharField(max_length=20, unique=True, blank=True, null=True)
+    salary = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    date_of_birth = models.DateField(null=True, blank=True)
+    created_by = models.ForeignKey(
+        'self', 
+        on_delete=models.SET_NULL, 
+        null=True, 
+        blank=True,
+        related_name='created_users'
+    )
+    
+    def save(self, *args, **kwargs):
+        if not self.employee_id and self.role != 'BOSS':
+            role_code = self.role[:3].upper()
+            last_emp = User.objects.filter(role=self.role).order_by('-id').first()
+            seq_num = 1 if not last_emp else int(last_emp.employee_id[-4:]) + 1
+            self.employee_id = f"EMP{role_code}{seq_num:04d}"
+        
+        if not self.password.startswith('pbkdf2_sha256$'):
+            self.set_password(self.password)
+            
+        super().save(*args, **kwargs)
+    
+    def __str__(self):
+        return f"{self.username} ({self.role}) - {self.employee_id}"
+
+class Category(models.Model):
+    name = models.CharField(max_length=100)
+    description = models.TextField(blank=True)
     
     def __str__(self):
         return self.name
 
-class Transaction(models.Model):
-    TRANSACTION_TYPES = [
-        ('SALE', 'Sale'),
-        ('PURCHASE', 'Purchase'),
-        ('RETURN', 'Return'),
-    ]
+class Product(models.Model):
+    name = models.CharField(max_length=200)
+    category = models.ForeignKey(Category, on_delete=models.CASCADE, default=1)
+    price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    cost_price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    stock_quantity = models.IntegerField(default=0)
+    min_stock_level = models.IntegerField(default=5)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
     
+    def profit_margin(self):
+        return self.price - self.cost_price
+    
+    def profit_margin_percentage(self):
+        if self.cost_price > 0:
+            return ((self.price - self.cost_price) / self.cost_price) * 100
+        return 0
+    
+    def __str__(self):
+        return f"{self.name} - Stock: {self.stock_quantity}"
+
+class Sale(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    seller = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, limit_choices_to={'role': 'SELLER'})
+    total_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    profit = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    sale_date = models.DateTimeField(auto_now_add=True)
+    payment_method = models.CharField(max_length=20, choices=[
+        ('CASH', 'Cash'),
+        ('CARD', 'Card'),
+        ('MOMO', 'Mobile Money')
+    ], default='CASH')
+    
+    class Meta:
+        indexes = [
+            models.Index(fields=['sale_date']),
+            models.Index(fields=['seller']),
+        ]
+    
+    def __str__(self):
+        return f"Sale {self.id} by {self.seller.username}"
+
+class SaleItem(models.Model):
+    sale = models.ForeignKey(Sale, related_name='items', on_delete=models.CASCADE)
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
-    transaction_type = models.CharField(max_length=10, choices=TRANSACTION_TYPES)
-    quantity = models.IntegerField()
-    unit_price = models.DecimalField(max_digits=10, decimal_places=2)
-    total_amount = models.DecimalField(max_digits=10, decimal_places=2)
-    transaction_date = models.DateTimeField(default=timezone.now)
-    notes = models.TextField(blank=True)
-    
-    # Add profit field
-    profit = models.DecimalField(max_digits=10, decimal_places=2, default=0)
-    
-    def save(self, *args, **kwargs):
-        # Calculate total amount
-        self.total_amount = self.quantity * self.unit_price
-        
-        # Calculate profit for SALES only
-        if self.transaction_type == 'SALE':
-            if self.product.cost_price is not None:
-                self.profit = (self.unit_price - self.product.cost_price) * self.quantity
-            else:
-                self.profit = 0
-        else:
-            self.profit = 0
-        
-        # Update stock
-        if self.transaction_type == 'SALE':
-            if self.product.current_stock >= self.quantity:
-                self.product.current_stock -= self.quantity
-            else:
-                raise ValueError("Insufficient stock")
-        elif self.transaction_type == 'PURCHASE':
-            self.product.current_stock += self.quantity
-        elif self.transaction_type == 'RETURN':
-            self.product.current_stock += self.quantity
-            
-        self.product.save()
-        super().save(*args, **kwargs)
+    quantity = models.IntegerField(default=1)
+    unit_price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    profit = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     
     def __str__(self):
-        return f"{self.transaction_type} - {self.product.name} - {self.quantity} units"
+        return f"{self.quantity} x {self.product.name}"
 
-class DailySummary(models.Model):
-    date = models.DateField(unique=True)
-    total_sales = models.DecimalField(max_digits=15, decimal_places=2, default=0)
-    total_purchases = models.DecimalField(max_digits=15, decimal_places=2, default=0)
-    total_transactions = models.IntegerField(default=0)
-    profit_loss = models.DecimalField(max_digits=15, decimal_places=2, default=0)
+class UserActivityLog(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    action = models.CharField(max_length=100)
+    timestamp = models.DateTimeField(auto_now_add=True)
+    details = models.JSONField(default=dict)
     
     class Meta:
-        ordering = ['-date']
+        ordering = ['-timestamp']
+        indexes = [
+            models.Index(fields=['timestamp']),
+            models.Index(fields=['user']),
+        ]
     
     def __str__(self):
-        return f"Daily Summary - {self.date}"
+        return f"{self.user.username} - {self.action} at {self.timestamp}"
 
-class WeeklySummary(models.Model):
-    week_start = models.DateField()
-    week_end = models.DateField()
-    total_sales = models.DecimalField(max_digits=15, decimal_places=2, default=0)
-    total_purchases = models.DecimalField(max_digits=15, decimal_places=2, default=0)
-    total_transactions = models.IntegerField(default=0)
-    profit_loss = models.DecimalField(max_digits=15, decimal_places=2, default=0)
-    
-    class Meta:
-        unique_together = ['week_start', 'week_end']
-        ordering = ['-week_start']
+class SystemSetting(models.Model):
+    key = models.CharField(max_length=100, unique=True)
+    value = models.TextField()
+    description = models.TextField(blank=True)
+    updated_at = models.DateTimeField(auto_now=True)
     
     def __str__(self):
-        return f"Weekly Summary - {self.week_start} to {self.week_end}"
-
-class MonthlySummary(models.Model):
-    year = models.IntegerField()
-    month = models.IntegerField()  # 1-12
-    total_sales = models.DecimalField(max_digits=15, decimal_places=2, default=0)
-    total_purchases = models.DecimalField(max_digits=15, decimal_places=2, default=0)
-    total_transactions = models.IntegerField(default=0)
-    profit_loss = models.DecimalField(max_digits=15, decimal_places=2, default=0)
-    
-    class Meta:
-        unique_together = ['year', 'month']
-        ordering = ['-year', '-month']
-    
-    def __str__(self):
-        return f"Monthly Summary - {self.month}/{self.year}"
-
-class YearlySummary(models.Model):
-    year = models.IntegerField(unique=True)
-    total_sales = models.DecimalField(max_digits=15, decimal_places=2, default=0)
-    total_purchases = models.DecimalField(max_digits=15, decimal_places=2, default=0)
-    total_transactions = models.IntegerField(default=0)
-    profit_loss = models.DecimalField(max_digits=15, decimal_places=2, default=0)
-    
-    class Meta:
-        ordering = ['-year']
-    
-    def __str__(self):
-        return f"Yearly Summary - {self.year}"
+        return f"{self.key}: {self.value}"

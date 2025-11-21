@@ -11,6 +11,7 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-your-secret-key-here-
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DEBUG', 'False') == 'True'  # ← FIXED: Single DEBUG definition
 
+AUTH_USER_MODEL = 'records.User'
 # Allow all hosts for development
 ALLOWED_HOSTS = [
     'localhost',
@@ -184,3 +185,4 @@ if not DEBUG:
 print(f"🚀 Django settings loaded: DEBUG={DEBUG}")
 print(f"📦 Database: {DATABASES['default']['ENGINE']}")
 print(f"🌐 Allowed Hosts: {ALLOWED_HOSTS}")
+
