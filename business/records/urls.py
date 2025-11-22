@@ -1,17 +1,9 @@
 # records/urls.py
-from django.urls import path, include
-from rest_framework.routers import DefaultRouter
-from . import views
+from django.urls import path
+from .views import profit_loss_report, create_test_data
 
-router = DefaultRouter()
-router.register(r'users', views.UserViewSet, basename='user')
-router.register(r'user-activities', views.UserActivityLogViewSet, basename='useractivity')
-router.register(r'products', views.ProductViewSet, basename='product')
-router.register(r'sales', views.SaleViewSet, basename='sale')
-router.register(r'categories', views.CategoryViewSet, basename='category')
-router.register(r'system-settings', views.SystemSettingViewSet, basename='systemsetting')
-router.register(r'reports', views.ReportViewSet, basename='report')
-
+# Use simple paths for now - we'll add ViewSets later
 urlpatterns = [
-    path('', include(router.urls)),
+    path('profit_loss_report/', profit_loss_report, name='profit-loss-report'),
+    path('create-test-data/', create_test_data, name='create-test-data'),
 ]
